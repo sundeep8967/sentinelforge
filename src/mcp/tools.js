@@ -5,10 +5,12 @@
 
 import { TeamworkGraphService } from '../services/teamworkGraph.js';
 import { JiraService } from '../services/jiraService.js';
+import { ConfluenceService } from '../services/confluenceService.js';
 import { DriftEngine } from '../services/driftEngine.js';
 
 const teamworkGraph = new TeamworkGraphService();
 const jiraService = new JiraService();
+const confluenceService = new ConfluenceService();
 const driftEngine = new DriftEngine();
 
 export const MCP_TOOLS = [
@@ -57,6 +59,24 @@ export const MCP_TOOLS = [
             },
             required: ['issueKey', 'actionId']
         }
+    },
+    {
+        name: 'sentinel_generate_confluence_postmortem',
+        description: 'Generates and publishes an automated Confluence Incident Retrospective page with timeline, root cause, and ADR sync.',
+        inputSchema: {
+            type: 'object',
+            properties: {
+                issueKey: {
+                    type: 'string',
+                    description: 'The Jira issue key'
+                },
+                spaceKey: {
+                    type: 'string',
+                    description: 'The target Confluence space key (default: ENG)'
+                }
+            },
+            required: ['issueKey']
+        }
     }
 ];
 
@@ -104,6 +124,26 @@ export async function handleToolCall(name, args) {
                     {
                         type: 'text',
                         text: JSON.stringify({ success: true, actionId, receipt }, null, 2)
+                    }
+                ]
+            };
+        }
+        case 'sentinel_generate_confluence_postmortem': {
+            const [issue, graph] = await Promise.all([
+                jiraService.getIssue(issueKey),
+                teamworkGraph.resolveGraph(issueKey)
+            ]);
+            const analysis = driftEngine.analyze(issue, graph);
+            const page = await confluenceService.createPostMortem(issueKey, {
+                analysis,
+                graph,
+                spaceKey: args?.spaceKey || 'ENG'
+            });
+            return {
+                content: [
+                    {
+                        type: 'text',
+                        text: JSON.stringify({ success: true, page }, null, 2)
                     }
                 ]
             };

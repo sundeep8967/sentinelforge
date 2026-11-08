@@ -21,7 +21,9 @@ const App = () => {
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState(null);
     const [remediating, setRemediating] = useState(false);
+    const [generatingDoc, setGeneratingDoc] = useState(false);
     const [remediationReceipt, setRemediationReceipt] = useState(null);
+    const [postMortemResult, setPostMortemResult] = useState(null);
     const [errorMessage, setErrorMessage] = useState(null);
 
     const loadContext = async () => {
@@ -57,6 +59,20 @@ const App = () => {
         }
     };
 
+    const handleGeneratePostMortem = async () => {
+        try {
+            setGeneratingDoc(true);
+            const res = await invoke('generatePostMortem', {
+                spaceKey: 'ENG'
+            });
+            setPostMortemResult(res?.postMortemPage);
+        } catch (err) {
+            setErrorMessage(err.message || 'Failed to publish Confluence retrospective');
+        } finally {
+            setGeneratingDoc(false);
+        }
+    };
+
     if (loading) {
         return (
             <Stack space="space.200" alignInline="center">
@@ -79,6 +95,7 @@ const App = () => {
     const graph = data?.graph || {};
     const driftScore = analysis.driftScore || 0;
     const riskLevel = analysis.riskLevel || 'LOW';
+    const blastRadius = analysis.blastRadius || [];
 
     let badgeAppearance = 'success';
     if (riskLevel === 'CRITICAL' || riskLevel === 'HIGH') {
@@ -98,6 +115,14 @@ const App = () => {
                 <SectionMessage appearance="confirmation" title="Automated Remediation Dispatched">
                     <Text>
                         Action applied: {remediationReceipt.actionId}. Receipt logged in Jira comments at {new Date(remediationReceipt.remediatedAt).toLocaleTimeString()}.
+                    </Text>
+                </SectionMessage>
+            )}
+
+            {postMortemResult && (
+                <SectionMessage appearance="information" title="Confluence Retrospective Published">
+                    <Text>
+                        Published to {postMortemResult.spaceKey} space: "{postMortemResult.title}". Cross-linked to Jira ticket activity.
                     </Text>
                 </SectionMessage>
             )}
@@ -128,6 +153,23 @@ const App = () => {
                 </TagGroup>
             </Stack>
 
+            {blastRadius.length > 0 && (
+                <Stack space="space.100">
+                    <Text weight="bold">Infrastructure Blast Radius Matrix</Text>
+                    {blastRadius.map((item, idx) => (
+                        <Box key={idx} padding="space.100" backgroundColor="color.background.elevation.surface.sunken">
+                            <Inline space="space.100" alignBlock="center" spread="space-between">
+                                <Text weight="medium">{item.service} ({item.tier})</Text>
+                                <Lozenge appearance={item.status === 'DEGRADED' ? 'removed' : item.status === 'MONITORING' ? 'inprogress' : 'success'}>
+                                    {item.status}
+                                </Lozenge>
+                            </Inline>
+                            <Text size="small">{item.impact} • Owner: {item.owner}</Text>
+                        </Box>
+                    ))}
+                </Stack>
+            )}
+
             {analysis.anomalies?.length > 0 && (
                 <Stack space="space.100">
                     <Text weight="bold">Detected Anomalies</Text>
@@ -143,7 +185,7 @@ const App = () => {
             )}
 
             <Stack space="space.150">
-                <Text weight="bold">Remediation Controls</Text>
+                <Text weight="bold">Remediation & Retrospective Controls</Text>
                 <ButtonGroup>
                     <Button 
                         appearance="primary" 
@@ -154,9 +196,10 @@ const App = () => {
                     </Button>
                     <Button 
                         appearance="default" 
-                        onClick={() => handleRemediate('ACTION_SYNC_CONFLUENCE')}
+                        isLoading={generatingDoc}
+                        onClick={handleGeneratePostMortem}
                     >
-                        Sync Confluence ADR
+                        Generate Confluence Post-Mortem
                     </Button>
                     <Button appearance="subtle" onClick={loadContext}>
                         Refresh Audit

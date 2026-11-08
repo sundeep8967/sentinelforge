@@ -2,6 +2,7 @@ import ResolverPackage from '@forge/resolver';
 import api, { route } from '@forge/api';
 import { TeamworkGraphService } from './services/teamworkGraph.js';
 import { JiraService } from './services/jiraService.js';
+import { ConfluenceService } from './services/confluenceService.js';
 import { DriftEngine } from './services/driftEngine.js';
 
 const ResolverClass = typeof ResolverPackage === 'function' ? ResolverPackage : (ResolverPackage.default || ResolverPackage);
@@ -9,6 +10,7 @@ const resolver = new ResolverClass();
 
 const teamworkGraphService = new TeamworkGraphService({ asUser: () => api.asUser(), asApp: () => api.asApp() });
 const jiraService = new JiraService({ asUser: () => api.asUser(), asApp: () => api.asApp(), route });
+const confluenceService = new ConfluenceService({ asUser: () => api.asUser(), asApp: () => api.asApp(), route });
 const driftEngine = new DriftEngine();
 
 resolver.define('getIssueContext', async (req) => {
@@ -51,10 +53,42 @@ resolver.define('executeRemediation', async (req) => {
     };
 });
 
+resolver.define('generatePostMortem', async (req) => {
+    const issueKey = req.context?.extension?.issue?.key || req.payload?.issueKey || 'PROJ-101';
+
+    const [issueData, graphData] = await Promise.all([
+        jiraService.getIssue(issueKey),
+        teamworkGraphService.resolveGraph(issueKey)
+    ]);
+
+    const analysis = driftEngine.analyze(issueData, graphData);
+    const postMortemPage = await confluenceService.createPostMortem(issueKey, {
+        analysis,
+        graph: graphData,
+        spaceKey: req.payload?.spaceKey || 'ENG'
+    });
+
+    // Cross-post reference to Jira comment
+    const jiraNotice = {
+        status: 'POST_MORTEM_PUBLISHED',
+        driftScore: analysis.driftScore,
+        rootCause: analysis.rootCause,
+        actionSummary: `Confluence Retrospective published: ${postMortemPage.title} (${postMortemPage.url})`
+    };
+    await jiraService.postRemediationComment(issueKey, jiraNotice);
+
+    return {
+        success: true,
+        postMortemPage,
+        publishedAt: postMortemPage.publishedAt
+    };
+});
+
 resolver.define('getMetrics', async () => {
     return {
         activeAudits: 14,
         mitigatedIncidents: 42,
+        postMortemsGenerated: 29,
         averageResolutionMinutes: 4.2,
         teamworkGraphNodesIndexed: 1280
     };

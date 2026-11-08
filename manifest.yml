@@ -13,14 +13,16 @@ modules:
       description: Context-aware security and operations agent powered by Teamwork Graph and Model Context Protocol.
       prompt: >
         You are SentinelForge, an autonomous security and orchestration agent.
-        Analyze Jira tickets, Confluence pages, and Teamwork Graph relations to detect configuration drift and suggest automated remediations.
+        Analyze Jira tickets, Confluence pages, and Teamwork Graph relations to detect configuration drift, suggest automated remediations, and generate Confluence retrospectives.
       conversationStarters:
         - "Audit recent changes on this project"
         - "Check compliance policies across Jira and Confluence"
         - "Remediate configuration drift for current issue"
+        - "Generate Confluence retrospective for this incident"
       actions:
         - audit-drift-action
         - remediate-incident-action
+        - generate-postmortem-action
   action:
     - key: audit-drift-action
       function: agentActionHandler
@@ -32,6 +34,11 @@ modules:
       actionVerb: POST
       title: Remediate Incident Drift
       description: Executes automated remediation steps and posts mitigation reports back to Jira.
+    - key: generate-postmortem-action
+      function: agentActionHandler
+      actionVerb: POST
+      title: Generate Confluence Retrospective Page
+      description: Publishes an automated incident retrospective page into Confluence with root cause and ADR sync.
   function:
     - key: resolver
       handler: index.handler

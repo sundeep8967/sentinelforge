@@ -14,7 +14,9 @@ SentinelForge bridges cross-product intelligence between Jira, Confluence, and e
 
 - **Atlassian Forge Serverless Runtime**: Hosted natively within Atlassian's secure cloud boundary using Forge UI Kit 2 (`@forge/react`).
 - **Teamwork Graph Traversal**: Automatically links Jira tickets to Confluence Architectural Decision Records (ADRs), pull requests, commits, and dependent microservices.
-- **Atlassian Rovo Agent**: Exposes natural language action handlers (`audit-drift-action`, `remediate-incident-action`) to the Rovo AI assistant.
+- **Automated Confluence Retrospective Generator**: One-click publication of full incident post-mortems back into Confluence spaces.
+- **Infrastructure Blast-Radius Matrix**: Real-time service tier mapping, failure propagation modeling, and team ownership attribution.
+- **Atlassian Rovo Agent**: Exposes natural language action handlers (`audit-drift-action`, `remediate-incident-action`, `generate-postmortem-action`) to the Rovo AI assistant.
 - **Model Context Protocol (MCP) Server**: Full JSON-RPC 2.0 stdio server enabling external agents (Claude Desktop, Antigravity, custom LLMs) to invoke SentinelForge tools.
 
 ---
@@ -27,12 +29,13 @@ sentinelforge/
 ├── package.json                    # Project dependencies & test scripts
 ├── README.md                       # Architecture & setup documentation
 ├── src/
-│   ├── index.js                    # UI Kit Resolver definitions (getIssueContext, executeRemediation)
+│   ├── index.js                    # UI Kit Resolver definitions (getIssueContext, executeRemediation, generatePostMortem)
 │   ├── agent.js                    # Atlassian Rovo Agent Action handlers
 │   ├── services/
 │   │   ├── teamworkGraph.js        # Teamwork Graph GraphQL query and traversal engine
 │   │   ├── jiraService.js          # Jira REST v3 issue & comment management
-│   │   └── driftEngine.js          # Core intelligence engine: drift calculation & anomaly scoring
+│   │   ├── confluenceService.js    # Confluence REST v2 automated retrospective publishing
+│   │   └── driftEngine.js          # Core intelligence engine: drift calculation & blast-radius matrix
 │   ├── mcp/
 │   │   ├── server.js               # Model Context Protocol stdio server
 │   │   └── tools.js                # MCP tools registry & execution handlers

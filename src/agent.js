@@ -7,10 +7,12 @@
 import api, { route } from '@forge/api';
 import { TeamworkGraphService } from './services/teamworkGraph.js';
 import { JiraService } from './services/jiraService.js';
+import { ConfluenceService } from './services/confluenceService.js';
 import { DriftEngine } from './services/driftEngine.js';
 
 const teamworkGraphService = new TeamworkGraphService({ asUser: () => api.asUser(), asApp: () => api.asApp() });
 const jiraService = new JiraService({ asUser: () => api.asUser(), asApp: () => api.asApp(), route });
+const confluenceService = new ConfluenceService({ asUser: () => api.asUser(), asApp: () => api.asApp(), route });
 const driftEngine = new DriftEngine();
 
 export async function actionHandler(req) {
@@ -38,6 +40,30 @@ export async function actionHandler(req) {
         };
     }
 
+    if (actionKey === 'generate-postmortem-action') {
+        const [issueData, graphData] = await Promise.all([
+            jiraService.getIssue(issueKey),
+            teamworkGraphService.resolveGraph(issueKey)
+        ]);
+
+        const analysis = driftEngine.analyze(issueData, graphData);
+        const page = await confluenceService.createPostMortem(issueKey, {
+            analysis,
+            graph: graphData,
+            spaceKey: req.payload?.spaceKey || 'ENG'
+        });
+
+        return {
+            success: true,
+            issueKey,
+            status: 'POST_MORTEM_PUBLISHED',
+            pageId: page.id,
+            pageTitle: page.title,
+            pageUrl: page.url,
+            summary: `Confluence Retrospective page successfully published for ${issueKey} at ${page.url}.`
+        };
+    }
+
     // Default action: audit-drift-action
     const [issueData, graphData] = await Promise.all([
         jiraService.getIssue(issueKey),
@@ -53,6 +79,7 @@ export async function actionHandler(req) {
         rootCause: analysis.rootCause,
         anomalies: analysis.anomalies.map(a => `${a.severity}: ${a.message}`),
         recommendedActions: analysis.recommendedActions.map(a => a.label),
+        blastRadius: analysis.blastRadius,
         teamworkGraphConnectedNodes: graphData.connectedNodes.length
     };
 }
