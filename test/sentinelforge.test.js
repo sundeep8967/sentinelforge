@@ -1,9 +1,9 @@
-const test = require('node:test');
-const assert = require('node:assert/strict');
-const { TeamworkGraphService } = require('../src/services/teamworkGraph.js');
-const { JiraService } = require('../src/services/jiraService.js');
-const { DriftEngine } = require('../src/services/driftEngine.js');
-const { MCP_TOOLS, handleToolCall } = require('../src/mcp/tools.js');
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { TeamworkGraphService } from '../src/services/teamworkGraph.js';
+import { JiraService } from '../src/services/jiraService.js';
+import { DriftEngine } from '../src/services/driftEngine.js';
+import { MCP_TOOLS, handleToolCall } from '../src/mcp/tools.js';
 
 test('TeamworkGraphService resolves synthesized graph in offline mode', async () => {
     const service = new TeamworkGraphService();

@@ -1,10 +1,11 @@
-import Resolver from '@forge/resolver';
+import ResolverPackage from '@forge/resolver';
 import api, { route } from '@forge/api';
 import { TeamworkGraphService } from './services/teamworkGraph.js';
 import { JiraService } from './services/jiraService.js';
 import { DriftEngine } from './services/driftEngine.js';
 
-const resolver = new Resolver();
+const ResolverClass = typeof ResolverPackage === 'function' ? ResolverPackage : (ResolverPackage.default || ResolverPackage);
+const resolver = new ResolverClass();
 
 const teamworkGraphService = new TeamworkGraphService({ asUser: () => api.asUser(), asApp: () => api.asApp() });
 const jiraService = new JiraService({ asUser: () => api.asUser(), asApp: () => api.asApp(), route });

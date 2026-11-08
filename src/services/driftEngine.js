@@ -4,7 +4,7 @@
  * and Git commits to compute drift severity and remediation pathways.
  */
 
-class DriftEngine {
+export class DriftEngine {
     /**
      * Analyzes graph data against current ticket to isolate discrepancies.
      * @param {Object} issue
@@ -93,5 +93,3 @@ class DriftEngine {
         };
     }
 }
-
-module.exports = { DriftEngine };

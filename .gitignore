@@ -2,3 +2,9 @@ node_modules/
 .DS_Store
 *.log
 .forge/
+demo_video/*.aiff
+demo_video/*.m4a
+demo_video/clip_*.mp4
+demo_video/usecase_clip_*.mp4
+demo_video/slides/
+demo_video/*concat_list.txt

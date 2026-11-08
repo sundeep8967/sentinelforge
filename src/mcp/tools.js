@@ -3,15 +3,15 @@
  * Declares tool schemas and dispatch handlers according to the Model Context Protocol specification.
  */
 
-const { TeamworkGraphService } = require('../services/teamworkGraph.js');
-const { JiraService } = require('../services/jiraService.js');
-const { DriftEngine } = require('../services/driftEngine.js');
+import { TeamworkGraphService } from '../services/teamworkGraph.js';
+import { JiraService } from '../services/jiraService.js';
+import { DriftEngine } from '../services/driftEngine.js';
 
 const teamworkGraph = new TeamworkGraphService();
 const jiraService = new JiraService();
 const driftEngine = new DriftEngine();
 
-const MCP_TOOLS = [
+export const MCP_TOOLS = [
     {
         name: 'sentinel_query_teamwork_graph',
         description: 'Queries the Atlassian Teamwork Graph to retrieve cross-product dependencies, linked Confluence ADRs, Git commits, and microservices for a Jira issue.',
@@ -60,7 +60,7 @@ const MCP_TOOLS = [
     }
 ];
 
-async function handleToolCall(name, args) {
+export async function handleToolCall(name, args) {
     const issueKey = args?.issueKey || 'PROJ-101';
 
     switch (name) {
@@ -112,5 +112,3 @@ async function handleToolCall(name, args) {
             throw new Error(`Unrecognized MCP tool: ${name}`);
     }
 }
-
-module.exports = { MCP_TOOLS, handleToolCall };

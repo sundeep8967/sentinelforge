@@ -3,7 +3,7 @@
  * Traverses cross-product dependencies across Jira, Confluence, and Git repositories.
  */
 
-class TeamworkGraphService {
+export class TeamworkGraphService {
     constructor(forgeApi = null) {
         this.forgeApi = forgeApi;
     }
@@ -113,5 +113,3 @@ class TeamworkGraphService {
         };
     }
 }
-
-module.exports = { TeamworkGraphService };

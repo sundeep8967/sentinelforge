@@ -4,8 +4,9 @@
  * Stdio JSON-RPC 2.0 server enabling external AI agents to access SentinelForge tools.
  */
 
-const readline = require('readline');
-const { MCP_TOOLS, handleToolCall } = require('./tools.js');
+import readline from 'readline';
+import { fileURLToPath } from 'url';
+import { MCP_TOOLS, handleToolCall } from './tools.js';
 
 const SERVER_INFO = {
     name: 'sentinelforge-mcp-server',
@@ -98,7 +99,7 @@ rl.on('line', async (line) => {
     }
 });
 
-// If run directly, log status to stderr so stdout remains clean for JSON-RPC
-if (require.main === module) {
+const isMain = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+if (isMain) {
     process.stderr.write('SentinelForge MCP Server active on stdio\n');
 }

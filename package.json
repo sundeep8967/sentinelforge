@@ -2,6 +2,7 @@
   "name": "sentinelforge",
   "version": "1.0.0",
   "description": "Atlassian Forge + Model Context Protocol (MCP) + Teamwork Graph Intelligent Agent",
+  "type": "module",
   "main": "src/index.js",
   "scripts": {
     "test": "node --test"

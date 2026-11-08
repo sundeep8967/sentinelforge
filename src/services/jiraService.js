@@ -3,7 +3,7 @@
  * Handles issue lookups, comment authoring, and state transitions via Atlassian Forge API.
  */
 
-class JiraService {
+export class JiraService {
     constructor(forgeApi = null) {
         this.forgeApi = forgeApi;
     }
@@ -113,5 +113,3 @@ class JiraService {
         };
     }
 }
-
-module.exports = { JiraService };
