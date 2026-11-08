@@ -2,8 +2,11 @@ modules:
   jira:issuePanel:
     - key: sentinelforge-panel
       title: SentinelForge Context & Sentinel
-      icon: https://developer.atlassian.com/favicon.ico
-      function: main
+      icon: https://developer.atlassian.com/platform/forge/images/icons/issue-panel-icon.svg
+      render: native
+      resource: main
+      resolver:
+        function: resolver
   rovo:agent:
     - key: sentinelforge-rovo-agent
       name: SentinelForge Agent
@@ -14,9 +17,29 @@ modules:
       conversationStarters:
         - "Audit recent changes on this project"
         - "Check compliance policies across Jira and Confluence"
+        - "Remediate configuration drift for current issue"
+      actions:
+        - audit-drift-action
+        - remediate-incident-action
+  action:
+    - key: audit-drift-action
+      function: agentActionHandler
+      actionVerb: GET
+      title: Audit Project Drift & Graph Relations
+      description: Queries Teamwork Graph to detect drift between Jira issues, Confluence specs, and commits.
+    - key: remediate-incident-action
+      function: agentActionHandler
+      actionVerb: POST
+      title: Remediate Incident Drift
+      description: Executes automated remediation steps and posts mitigation reports back to Jira.
   function:
-    - key: main
-      handler: index.run
+    - key: resolver
+      handler: index.handler
+    - key: agentActionHandler
+      handler: agent.actionHandler
+resources:
+  - key: main
+    path: src/frontend/index.jsx
 app:
   id: ari:cloud:ecosystem::app/7b8c2a1e-4592-4f11-9a7c-3e6f982a1d01
 permissions:
@@ -25,3 +48,5 @@ permissions:
     - write:jira-work
     - read:confluence-content.all
     - write:confluence-content
+    - read:graph:jira
+    - read:me
