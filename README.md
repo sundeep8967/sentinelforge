@@ -2,6 +2,8 @@
 
 Context-aware security, compliance, and orchestration agent built on **Atlassian Forge**, integrating the **Model Context Protocol (MCP)** and **Atlassian Teamwork Graph**.
 
+![SentinelForge Jira Panel](screenshots/jira_sentinel_panel.png)
+
 ---
 
 ## Overview
@@ -19,6 +21,8 @@ SentinelForge bridges cross-product intelligence between Jira, Confluence, and e
 - **Atlassian Rovo Agent**: Exposes natural language action handlers (`audit-drift-action`, `remediate-incident-action`, `generate-postmortem-action`) to the Rovo AI assistant.
 - **Model Context Protocol (MCP) Server**: Full JSON-RPC 2.0 stdio server enabling external agents (Claude Desktop, Antigravity, custom LLMs) to invoke SentinelForge tools.
 
+![SentinelForge Remediated Status](screenshots/jira_remediated_status.png)
+
 ---
 
 ## Project Structure
@@ -28,6 +32,9 @@ sentinelforge/
 ├── manifest.yml                    # Forge app declaration (UI Kit panel, Rovo agent, actions)
 ├── package.json                    # Project dependencies & test scripts
 ├── README.md                       # Architecture & setup documentation
+├── screenshots/                    # High-resolution UI captures
+│   ├── jira_sentinel_panel.png     # Issue panel with drift scorecard & blast radius
+│   └── jira_remediated_status.png  # Live automated circuit-breaker receipt
 ├── src/
 │   ├── index.js                    # UI Kit Resolver definitions (getIssueContext, executeRemediation, generatePostMortem)
 │   ├── agent.js                    # Atlassian Rovo Agent Action handlers
