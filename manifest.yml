@@ -1,0 +1,27 @@
+modules:
+  jira:issuePanel:
+    - key: sentinelforge-panel
+      title: SentinelForge Context & Sentinel
+      icon: https://developer.atlassian.com/favicon.ico
+      function: main
+  rovo:agent:
+    - key: sentinelforge-rovo-agent
+      name: SentinelForge Agent
+      description: Context-aware security and operations agent powered by Teamwork Graph and Model Context Protocol.
+      prompt: >
+        You are SentinelForge, an autonomous security and orchestration agent.
+        Analyze Jira tickets, Confluence pages, and Teamwork Graph relations to detect configuration drift and suggest automated remediations.
+      conversationStarters:
+        - "Audit recent changes on this project"
+        - "Check compliance policies across Jira and Confluence"
+  function:
+    - key: main
+      handler: index.run
+app:
+  id: ari:cloud:ecosystem::app/7b8c2a1e-4592-4f11-9a7c-3e6f982a1d01
+permissions:
+  scopes:
+    - read:jira-work
+    - write:jira-work
+    - read:confluence-content.all
+    - write:confluence-content

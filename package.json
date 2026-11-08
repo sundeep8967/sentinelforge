@@ -1,0 +1,22 @@
+{
+  "name": "sentinelforge",
+  "version": "1.0.0",
+  "description": "Atlassian Forge + Model Context Protocol (MCP) + Teamwork Graph Intelligent Agent",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@forge/api": "^4.0.0"
+  },
+  "keywords": [
+    "atlassian",
+    "forge",
+    "mcp",
+    "teamwork-graph",
+    "jira",
+    "confluence"
+  ],
+  "author": "K J Sundeep Kumar",
+  "license": "Apache-2.0"
+}
